@@ -36,6 +36,13 @@ models/
 	marts/instacart/
 		mart_top_products.sql
 ```
+		int_product_pairs.sql
+	marts/instacart/
+		mart_top_products.sql
+		mart_product_pairs.sql
+		mart_product_pairs_names.sql
+		mart_association_rules.sql
+```
 
 ## Fluxo dos models
 
@@ -73,6 +80,7 @@ Ele centraliza:
 - joins entre entidades principais
 - enriquecimento dimensional
 - tipagem explicita das colunas com `cast`
+- filtro incremental seguro com cast de tipo no `order_id`
 
 Colunas principais geradas:
 
@@ -88,6 +96,14 @@ Colunas principais geradas:
 - `add_to_cart_order`
 - `reordered`
 
+O modelo `int_product_pairs.sql` gera todos os pares de produtos comprados juntos no mesmo pedido, usando um self-join em `stg_order_products` com a condicao `product_id_a < product_id_b` para evitar duplicidade.
+
+Colunas geradas:
+
+- `order_id`
+- `product_1`
+- `product_2`
+
 ### 4. Mart
 
 O modelo `mart_top_products.sql` agrega os dados de `int_order_details` para gerar um ranking de produtos.
@@ -99,6 +115,27 @@ Metricas disponiveis:
 - `total_recompras`: quantidade de recompras do produto
 
 Esse mart e o ponto ideal para analise de performance de produtos e dashboards.
+
+---
+
+Os modelos a seguir implementam **market basket analysis** (analise de cesta de mercado):
+
+**`mart_product_pairs.sql`** — conta quantas vezes cada par de produtos aparece junto e calcula o suporte do par (frequencia relativa sobre o total de pedidos). Filtra pares com suporte minimo de 1%.
+
+Colunas: `product_1`, `product_2`, `support_count`, `support`
+
+**`mart_product_pairs_names.sql`** — enriquece `mart_product_pairs` com os nomes dos produtos para facilitar leitura e consumo em dashboards.
+
+Colunas: `product_1_name`, `product_2_name`, `support`, `support_count`
+
+**`mart_association_rules.sql`** — calcula as regras de associacao (confidence e lift) para cada par de produtos com suporte valido.
+
+Metricas:
+
+- `support_ab`: frequencia do par
+- `support_a` / `support_b`: frequencia individual de cada produto
+- `confidence`: probabilidade de comprar B dado que comprou A
+- `lift`: ganho real em relacao ao acaso (lift > 1 indica associacao positiva)
 
 ## Como usar
 
@@ -187,6 +224,8 @@ Este projeto pode ser usado para:
 - comportamento de recompra
 - exploracao por departamento e corredor
 - base para dashboards de vendas e sortimento
+- market basket analysis — identificar quais produtos sao comprados juntos
+- regras de associacao para recomendacao de produtos (confidence e lift)
 
 ## Proximos passos
 

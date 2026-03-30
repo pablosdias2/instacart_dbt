@@ -1,6 +1,19 @@
+{{ config(
+    materialized='incremental',
+    unique_key=['order_id', 'product_id']
+) }}
+
 with orders as (
 
-    select * from {{ ref('stg_orders') }}
+    select *
+    from {{ ref('stg_orders') }}
+
+    {% if is_incremental() %}
+        where cast(order_id as {{ dbt.type_int() }}) > (
+            select coalesce(max(order_id), 0)
+            from {{ this }}
+        )
+    {% endif %}
 
 ),
 
