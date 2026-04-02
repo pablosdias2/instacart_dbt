@@ -1,3 +1,6 @@
+{{ config(
+    materialized='table'
+) }}
 with order_details as (
 
     select * from {{ ref('int_order_details') }}

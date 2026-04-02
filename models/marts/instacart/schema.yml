@@ -1,0 +1,44 @@
+version: 2
+
+models:
+  - name: mart_top_products
+    columns:
+      - name: product_id
+        tests:
+          - not_null
+
+      - name: total_vendas
+        tests:
+          - not_null
+
+  - name: mart_product_pairs
+    columns:
+      - name: product_1
+        tests:
+          - not_null
+
+      - name: product_2
+        tests:
+          - not_null
+
+      - name: support
+        tests:
+          - not_null
+
+  - name: mart_association_rules
+    columns:
+      - name: product_1
+        tests:
+          - not_null
+
+      - name: product_2
+        tests:
+          - not_null
+
+      - name: confidence
+        tests:
+          - not_null
+
+      - name: lift
+        tests:
+          - not_null

@@ -1,0 +1,22 @@
+version: 2
+
+models:
+  - name: int_order_details
+    columns:
+      - name: order_id
+        tests:
+          - not_null
+
+      - name: product_id
+        tests:
+          - not_null
+
+  - name: int_product_pairs
+    columns:
+      - name: product_1
+        tests:
+          - not_null
+
+      - name: product_2
+        tests:
+          - not_null

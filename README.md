@@ -42,6 +42,7 @@ models/
 		mart_product_pairs.sql
 		mart_product_pairs_names.sql
 		mart_association_rules.sql
+		mart_association_rules_names.sql
 ```
 
 ## Fluxo dos models
@@ -137,6 +138,10 @@ Metricas:
 - `confidence`: probabilidade de comprar B dado que comprou A
 - `lift`: ganho real em relacao ao acaso (lift > 1 indica associacao positiva)
 
+**`mart_association_rules_names.sql`** — enriquece `mart_association_rules` com os nomes dos produtos, mantendo os IDs e todas as metricas de regras de associacao.
+
+Colunas: `product_1`, `product_1_name`, `product_2`, `product_2_name`, `support_ab`, `support_a`, `support_b`, `confidence`, `lift`
+
 ## Como usar
 
 ### 1. Pre-requisitos
@@ -192,6 +197,51 @@ Mart:
 ```bash
 dbt run --select marts.instacart
 ```
+
+## Materialização dos modelos
+
+Todos os modelos da camada de marts foram configurados como **tabelas** (`materialized='table'`) para melhor desempenho em consultas analíticas:
+
+- `mart_top_products.sql`
+- `mart_product_pairs.sql`
+- `mart_product_pairs_names.sql`
+- `mart_association_rules.sql`
+- `mart_association_rules_names.sql`
+
+## Testes inclusos
+
+O projeto inclui testes dbt para validar a integridade e qualidade dos dados:
+
+### Testes de unicidade e não-nulidade
+
+Definidos em `models/*/schema.yml` para garantir:
+
+- Chaves primárias únicas (`stg_orders.order_id`, `stg_products.product_id`, etc.)
+- Colunas críticas não-nulas
+- Relacionamentos entre tabelas via chaves estrangeiras
+
+### Testes customizados
+
+- `tests/test_confidence_range.sql`: valida que a confiança das regras está sempre entre 0 e 1
+- `tests/test_lift_positive.sql`: valida que o lift é sempre positivo (lift > 0)
+
+Para rodar todos os testes:
+
+```bash
+dbt test
+```
+
+## Documentação técnica
+
+O arquivo `tcc.tex` contém a documentação técnica completa do projeto em formato LaTeX, incluindo:
+
+- Descrição detalhada de cada tabela fonte (orders, products, departments, aisles, order_products_*)
+- Explicação do processo de ingestão de dados em PostgreSQL
+- Documentação de todo o pipeline dbt (staging, intermediate e marts)
+- Fórmulas matemáticas das métricas (suporte, confiança, lift)
+- Código SQL comentado de cada modelo
+
+Este documento pode ser compilado com `pdflatex` ou `xelatex` para gerar um PDF completo.
 
 ### 6. Rodar um modelo especifico
 

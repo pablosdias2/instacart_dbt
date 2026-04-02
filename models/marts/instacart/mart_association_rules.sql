@@ -1,3 +1,7 @@
+{{ config(
+    materialized='table'
+) }}
+
 with pairs as (
 
     select *
